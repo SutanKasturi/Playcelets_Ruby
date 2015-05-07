@@ -1,4 +1,6 @@
 class PlayInvitationsController < ApplicationController
+
+
   before_action :set_play_invitation, only: [:show, :edit, :update, :destroy, :accept, :reject]
   before_action :get_children_and_friends, only: [:new, :create]
   before_action :get_params, only: [:index]

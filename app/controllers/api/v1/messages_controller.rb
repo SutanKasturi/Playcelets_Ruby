@@ -1,11 +1,16 @@
 class Api::V1::MessagesController < Api::BaseController
   include CalculateUserDetailsActions
+  
+  # require 'sinatra'
+  # require 'rest_client'
 
   protect_from_forgery with: :null_session
 
   before_action :get_params, only: :index
   before_action :set_message, only: [:show, :edit, :update, :destroy, :confirm]
-  before_action :calculate_user_details, only: :create
+  before_action :calculate_user_details, only: [:create, :new_message]
+
+  skip_before_filter :verify_authenticity_token
   respond_to :json
 
   # GET /messages.json
@@ -24,6 +29,116 @@ class Api::V1::MessagesController < Api::BaseController
 
   # GET /messages/1.json
   def show
+  end
+
+  def new_message
+    p "************************ New_message:************* #{current_user.email}"
+    if current_user.admin?
+      @app = App.find(params[:app_id])
+    else
+      @app = current_user.supervisor.app
+      @app = nil if params[:app_id] && (@app.id.to_s != params[:app_id].to_s)
+      p "#{@app}"
+    end
+    @located_at = Time.now
+    if params[:playcelet_ids]
+      @messages = []
+      params[:playcelet_ids].split(',').each do |playcelet_id|
+        if (params[:type] == Message::MessageTypes::CHECK_IN)
+          @child = Child.find_by_mac_address(playcelet_id)
+          if @child
+            @message = Message.send_check_in(@child, @app, @located_at)
+            @messages << @message
+            EventLog.createCheckInMessage(current_user, @message)
+          end
+        elsif params[:type] == Message::MessageTypes::CHECK_OUT
+          @child = Child.find_by_mac_address(playcelet_id)
+          if @child
+            @message = Message.send_check_out(@child, @app)
+            @messages << @message
+            EventLog.createCheckOutMessage(current_user, @message)
+          end
+        end
+      end
+      
+    else
+      @child = Child.find_by_mac_address(params[:playcelet_id])
+      p "Finding Child by Playcelet_Mac Address: #{@child}"
+      if @child.blank?
+        render json: {code: 404, error: 'Child not found'}
+        return
+      elsif @app.blank?
+        render json: {code: 404, error: 'Parent not found'}
+        return
+      end
+
+      p "-----------------Message Type   #{params[:type]}---------------"
+      if (params[:type] == Message::MessageTypes::CHECK_IN)
+        p "CHECK_IN Message Create"
+        @message = Message.send_check_in(@child, @app, @located_at)
+        EventLog.createCheckInMessage(current_user, @message)
+      elsif params[:type] == Message::MessageTypes::CHECK_OUT
+        p "CHECK_OUT Message Create"
+        @message = Message.send_check_out(@child, @app)
+        EventLog.createCheckOutMessage(current_user, @message)
+      elsif params[:type] == Message::MessageTypes::PLAY_INVITATION
+        p "PLAY_INVITATION Message Create"        
+        # gcm = GCM.new("AIzaSyCkvQ6Ea4z_66VbDFTHVEA3OGn_Z82wtlE")
+        # registration_ids = ["APA91bG3YnhNijHzBT52oOp6oe2ROFpJdyWLP43RKlLof8phHBHGcv1s1dUlFNyx60k3C6hP6MHhhsEGHpjpnXbvF5lhXv8fM1UwCOz0bCJ7Y3Vu__CvyN9i7Zv4MM1rG4qrwuOUzc79JueRKBYFqM_oYoKjZIBZPA","APA91bF3_fNf1PmjmR2PqP-MFw6ocTCaoanTFasWYBMvzngFanA59IX6iw20HqUL96H935KhEeW90CgnuKyLBcCH-FV1fyyLAYsLrcbJ9uQHCNuB3o5BhEMFRDu0ub4wH_0LGvkskIdWUikhsQvNx7vMmIKKPZ_E8g"];
+        # options = {data: {msg: "Notification test from Ruby server!"}}
+        # response = gcm.send_notification(registration_ids, options)
+
+        # puts response
+        
+        if params[:duration]
+          @duration = params[:duration].to_i
+        elsif params[:end_time]
+          params[:end_time].is_a?(Integer)
+          @end_time = params[:end_time].blank? ? nil : Time.at(params[:end_time].to_i)
+        else
+          @duration = 180
+        end
+        p "-------Play duration:-----#{@duration}"
+        if params[:invited_playcelet_id]
+          p "------Invited Playcelet ID------#{params[:invited_playcelet_id]}"
+          @invited_child = Child.find_by_mac_address(params[:invited_playcelet_id])
+          if @invited_child.blank?
+            render json: {code: 404, error: 'Invited Child not found'}
+            return
+          end
+          create_play_invitation_from_child_to_child(@child, @invited_child, @app)
+        elsif params[:invited_playcelet_ids]
+          created_at_least_one = false
+          params[:invited_playcelet_ids].split(',').each do |mac_address|
+            @invited_child = Child.find_by_mac_address(mac_address)
+            if @invited_child
+              created_at_least_one = true
+              create_play_invitation_from_child_to_child(@child, @invited_child, @app)
+            end
+          end
+          unless created_at_least_one
+            render json: {code: 404, error: 'Invited Children not found'}
+            return
+          end
+        end
+      end
+    end
+
+    if @messages
+      @message = @messages.first 
+      EventLog.createMessage(current_user, @message, params)
+    end
+
+    if @message && @message.valid?
+      p "Message valid"
+      render json: {code: 200}.merge(json_user_details)
+    elsif @messages && @messages.all?(&:valid?)
+      p "Message valid all"
+      render json: {code: 200}.merge(json_user_details)
+    else
+      p "Message invalid"
+      render json: @message.errors, status: :unprocessable_entity
+    end
   end
 
   # POST /messages.json

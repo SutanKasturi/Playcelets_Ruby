@@ -13,6 +13,8 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
+  # field :device, type: String, default: nil
+
   has_one :supervisor
   has_one :family, through: :supervisor
   has_many :children, through: :family

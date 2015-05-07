@@ -45,6 +45,22 @@ Rails.application.routes.draw do
 
       resources :play_networks
 
+      resources :children
+      match '/get_all_children' => 'children#index', :via => :post
+      match '/get_all_playnetwork' => 'children#show_all', :via => :get
+      match '/send_invite_notification' => 'children#send_invite_notification', :via => :post
+      match '/send_rsvp_notification' => 'children#send_rsvp_notification', :via => :post
+      match '/check_in_notification' => 'children#check_in_notification', :via => :post
+      match '/come_home_notification' => 'children#come_home_notification', :via => :post
+      match '/overdue_home_notification' => 'children#overdue_home_notification', :via => :post
+
+      resources :messages do
+        match '/message/:id' => 'messages#confirm', :via => :post
+        collection do 
+          post :new_message
+        end
+      end
+
       resources :friends
       resources :play_invitations
       match '/play_invitation' => 'play_invitations#last', :via => :get

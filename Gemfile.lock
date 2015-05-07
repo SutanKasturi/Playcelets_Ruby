@@ -81,6 +81,9 @@ GEM
     execjs (2.2.1)
     ffi (1.9.3)
     formatador (0.2.5)
+    gcm (0.0.9)
+      httparty
+      json
     guard (2.6.1)
       formatador (>= 0.2.4)
       listen (~> 2.7)
@@ -89,6 +92,9 @@ GEM
       thor (>= 0.18.1)
     highline (1.6.21)
     hike (1.2.3)
+    httparty (0.13.3)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
     i18n (0.6.9)
     jbuilder (2.1.1)
       activesupport (>= 3.0.0, < 5)
@@ -248,7 +254,8 @@ DEPENDENCIES
   daemons
   delayed_job!
   delayed_job_active_record
-  devise
+  devise (~> 3.2.4)
+  gcm
   guard
   jbuilder (~> 2.0)
   jquery-rails

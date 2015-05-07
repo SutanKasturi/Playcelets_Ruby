@@ -21,7 +21,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer',  platforms: :ruby
-gem 'devise'
+gem 'devise', '~>3.2.4'
 gem 'simple_token_authentication'
 
 gem 'aws-sdk'
@@ -45,6 +45,9 @@ gem 'spring',        group: :development
 gem "delayed_job", :git => 'git://github.com/collectiveidea/delayed_job.git' 
 gem 'delayed_job_active_record'
 gem "daemons"
+
+#Push notification
+gem 'gcm'
 
 # Use unicorn as the app server
 gem 'unicorn'

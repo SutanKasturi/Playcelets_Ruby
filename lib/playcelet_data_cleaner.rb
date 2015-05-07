@@ -14,8 +14,8 @@ class PlayceletDataCleaner
 			Child.all.update_all(app_id: nil)
 		end
 
-		def clear3DaysData
-			records_age_options = ['created_at <= ?', 3.days.ago.utc]
+		def clear1DaysData
+			records_age_options = ['created_at <= ?', 1.days.ago.utc]
 			PLAYCELET_DATA_CLASSES.each do |playcelet_data_class|
 				playcelet_data_class.destroy_all(records_age_options)
 			end

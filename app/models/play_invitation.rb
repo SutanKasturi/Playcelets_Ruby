@@ -30,33 +30,45 @@ class PlayInvitation < ActiveRecord::Base
     }
   end
   module EndTimePeriods
+    QUARTER_HOUR = 15
     HALF_HOUR = 30
+    THREE_QUARTERS = 45
     HOUR = 60
+    HOUR_AND_A_QUARTER = 75
     HOUR_AND_A_HALF = 90
+    HOUR_AND_THREE_QUARTERS = 105
     TWO_HOURS = 120
+    TWO_HOURS_AND_A_QUARTER = 135
     TWO_HOURS_AND_A_HALF = 150
-    THREE_HOURS = 180
-    THREE_HOURS_AND_A_HALF = 210
-    FOUR_HOURS = 240
+    TWO_HOURS_AND_THREE_QUARTERS = 165
+    THREE_HOURS = 180 
     LIST = [
+      QUARTER_HOUR,
       HALF_HOUR,
+      THREE_QUARTERS,
       HOUR,
+      HOUR_AND_A_QUARTER,
       HOUR_AND_A_HALF,
+      HOUR_AND_THREE_QUARTERS,
       TWO_HOURS,
+      TWO_HOURS_AND_A_QUARTER,
       TWO_HOURS_AND_A_HALF,
-      THREE_HOURS,
-      THREE_HOURS_AND_A_HALF,
-      FOUR_HOURS
+      TWO_HOURS_AND_THREE_QUARTERS,
+      THREE_HOURS
     ]
     NAME_BY_VALUE = {
+      QUARTER_HOUR => '15 minutes',
       HALF_HOUR => '30 minutes',
+      THREE_QUARTERS => '45 minutes',
       HOUR => '1 hour',
+      HOUR_AND_A_QUARTER => '1 hour and a quarter',
       HOUR_AND_A_HALF => '1 hour and a half',
+      HOUR_AND_THREE_QUARTERS => '1 hour and 45 minutes',
       TWO_HOURS => '2 hours',
+      TWO_HOURS_AND_A_QUARTER => '2 hours and a quarter',
       TWO_HOURS_AND_A_HALF => '2 hours and a half',
-      THREE_HOURS => '3 hours',
-      THREE_HOURS_AND_A_HALF => '3 hours and a half',
-      FOUR_HOURS => '4 hours',
+      TWO_HOURS_AND_THREE_QUARTERS => '2 hours and 45 minutes',
+      THREE_HOURS => '3 hours'      
     }
 
     class << self
@@ -220,16 +232,35 @@ class PlayInvitation < ActiveRecord::Base
       result_time = Time.now
       minutes = result_time.min
       hour = result_time.hour
-      if minutes.zero?
-        puts "zero"
-      elsif (0 < minutes) && (minutes < 30)
-        result_time = result_time.change({:min => 30 , :sec => 0 })
-      elsif (30 < minutes) && (minutes < 60)
-        result_time = result_time.change({:min => 0 , :sec => 0 })
-        result_time += 1.hour
-      end
+      # if minutes.zero?
+        # puts "zero"
+      # elsif (0 < minutes) && (minutes < 30)
+      #   result_time = result_time.change({:min => 30 , :sec => 0 })
+      # elsif (30 < minutes) && (minutes < 60)
+      #   result_time = result_time.change({:min => 0 , :sec => 0 })
+      #   result_time += 1.hour
+      # end
       result_time.utc
     end
+
+    def nearest_start_time2
+    result_time = Time.now
+    minutes = result_time.min
+    hour = result_time.hour
+    if minutes.zero?
+      puts "zero"
+    elsif (0 < minutes) && (minutes < 15)
+      result_time = result_time.change({:min => 15 , :sec => 0 })
+    elsif (15 < minutes) && (minutes < 30)
+      result_time = result_time.change({:min => 30 , :sec => 0})
+    elsif (30 < minutes) && (minutes < 45)
+      result_time = result_time.change({:min => 45 , :sec => 0})
+    elsif (45 < minutes) && (minutes < 60)
+      result_time = result_time.change({:min => 0 , :sec => 0 })
+      result_time += 1.hour
+    end
+    result_time.utc
+  end
 
     def default_invitation_text(child, invited_child, _end_time=nil)
       ["Play at #{child}’s house", (_end_time ? "until #{convert_time _end_time}" : nil)].compact.join(' ')
@@ -252,8 +283,12 @@ class PlayInvitation < ActiveRecord::Base
     @proposed_start_time ||= self.proposed_end_time ? (self.proposed_end_time - self.proposed_duration.minutes) : PlayInvitation.nearest_start_time
   end
 
+  def proposed_nearest_start_time
+    @proposed_nearest_start_time ||= self.proposed_end_time ? (self.proposed_end_time - self.proposed_duration.minutes) : PlayInvitation.nearest_start_time2
+  end
+
   def set_end_time
-    self.end_time ||= (self.proposed_start_time + duration.to_i.minutes) if duration
+    self.end_time ||= (self.proposed_nearest_start_time + duration.to_i.minutes) if duration
     self.duration = (((self.end_time - self.proposed_start_time).to_i / 60 + 15) / 30 * 30)  if self.end_time && self.duration.nil?
     self.proposed_end_time ||= self.end_time
     self.proposed_duration ||= self.duration

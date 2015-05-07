@@ -5,6 +5,8 @@ class ChildrenController < ApplicationController
   # GET /children
   # GET /children.json
   def index
+    p "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+    
     if current_user.admin?
       @children = Child.all
     elsif current_user.parent?
@@ -17,6 +19,7 @@ class ChildrenController < ApplicationController
   # GET /children/1
   # GET /children/1.json
   def show
+    
   end
 
   # GET /children/new

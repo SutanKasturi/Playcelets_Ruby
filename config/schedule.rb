@@ -20,5 +20,8 @@
 # Learn more: http://github.com/javan/whenever
 
 every 1.day, :at => '8:00 am' do
-  runner "PlayceletDataCleaner.clear3DaysData"
+  runner "PlayceletDataCleaner.clear1DaysData"
+end
+every 15.minutes do
+
 end
