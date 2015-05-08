@@ -35,6 +35,7 @@ class Api::V1::ChildrenController<Api::BaseController
 				
 				end_timestamp = params[:end_time]
 				invited_child_name = Child.find_by_mac_address(invited_child_id).name
+				invited_device_id = Child.find_by_mac_address(invited_child_id).playcelet
 				host_color = params[:color]
 
 				gcm = GCM.new("AIzaSyCkvQ6Ea4z_66VbDFTHVEA3OGn_Z82wtlE")
@@ -46,6 +47,7 @@ class Api::V1::ChildrenController<Api::BaseController
 		          {
 		            msg: "New invitation to #{invited_child_name}",
 		            invited_child_name: invited_child_name,
+		            invited_child_playcelet_id: invited_device_id,
 		            invited_child_playcelet_address: invited_child_id,
 		            end_timestamp: end_timestamp,
 		            host_color: host_color,
@@ -63,6 +65,7 @@ class Api::V1::ChildrenController<Api::BaseController
         			else
 						end_timestamp = params[:end_time]
 						invited_child_name = Child.find_by_mac_address(mac_address).name
+						invited_device_id = Child.find_by_mac_address(mac_address).playcelet
 
 						host_color = params[:color]
 
@@ -75,6 +78,7 @@ class Api::V1::ChildrenController<Api::BaseController
 				          {
 				            msg: "New invitation to #{invited_child_name}",
 				            invited_child_name: invited_child_name,
+				            invited_child_playcelet_id: invited_device_id,
 				            invited_child_playcelet_address: mac_address,
 				            end_timestamp: end_timestamp,
 				            host_color: host_color,
@@ -103,11 +107,14 @@ class Api::V1::ChildrenController<Api::BaseController
 			child_name = params[:child_name]
 			child_color = params[:color]
 			child_playcelet = params[:playcelet_id]
-			invited_playcelet_id = params[:invited_device_id]
+			invited_playcelet_mac = params[:invited_device_id]
+			invited_playcelet_id = Child.find_by_mac_address(invited_playcelet_mac).playcelet
+
 			end_timestamp = params[:end_time]
 
 			child_id = Child.find_by_first_name(child_name).id
 			child_full_name = Child.find_by_first_name(child_name).name
+			child_playcelet_id = Child.find_by_first_name(child_name).playcelet
 
 			gcm = GCM.new("AIzaSyCkvQ6Ea4z_66VbDFTHVEA3OGn_Z82wtlE")
 	        @notify_token = invite_token
@@ -120,13 +127,16 @@ class Api::V1::ChildrenController<Api::BaseController
 	          data:
 	          {
 	            msg: message,
+	            status: status,
 	            invitation_id: invitation_id,
 	            child_id: child_id,
 	            child_full_name: child_full_name,
 	            child_color: child_color,
-	            child_playcelet:child_playcelet,
-	            invited_playcelet:invited_playcelet_id,
-	            end_timestamp:end_timestamp,
+	            child_playcelet: child_playcelet,
+	            child_playcelet_id: child_playcelet_id,
+	            invited_playcelet_id: invited_playcelet_id,
+	            invited_playcelet_address: invited_playcelet_mac,
+	            end_timestamp: end_timestamp,
 	            condition: 2,
 	          }
 	        }
