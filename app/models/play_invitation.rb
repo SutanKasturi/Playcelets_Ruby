@@ -313,6 +313,7 @@ class PlayInvitation < ActiveRecord::Base
       proposed_end_time: proposed_end_time.to_time.utc.to_i,
       start_time: proposed_start_time.utc.to_i,
       created_at: created_at.utc.to_i,
+      updated_at: updated_at.utc.to_i,
     }
   end
 
