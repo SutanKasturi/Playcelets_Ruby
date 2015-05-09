@@ -108,6 +108,8 @@ class Api::V1::ChildrenController<Api::BaseController
 			child_color = params[:color]
 			child_playcelet = params[:playcelet_id]
 			invited_playcelet_mac = params[:invited_device_id]
+
+			p "#{invited_playcelet_mac}"
 			invited_playcelet_id = Child.find_by_mac_address(invited_playcelet_mac).playcelet
 
 			end_timestamp = params[:end_time]
