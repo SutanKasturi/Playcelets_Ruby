@@ -59,7 +59,7 @@ class EventLog < ActiveRecord::Base
     INFO_CREATE_PLAY_INVITATION_NOTIFICATION_COMPLETED_TO_INVITED = :info_create_play_invitation_notification_completed_to_invited
     INFO_CREATE_PLAY_INVITATION_NOTIFICATION_COMPLETED_TO_AUTHOR = :info_create_play_invitation_notification_completed_to_author
 
-    CLEAR_3_DAYS_DATA = :clear_3_days_data
+    CLEAR_1_DAYS_DATA = :clear_1_days_data
   end
 
   module ModeTypes
@@ -116,7 +116,7 @@ class EventLog < ActiveRecord::Base
       EventTypes::INFO_CREATE_PLAY_INVITATION_NOTIFICATION_COMPLETED_TO_INVITED => WRITE,
       EventTypes::INFO_CREATE_PLAY_INVITATION_NOTIFICATION_COMPLETED_TO_AUTHOR => WRITE,
 
-      EventTypes::CLEAR_3_DAYS_DATA => WRITE,
+      EventTypes::CLEAR_1_DAYS_DATA => WRITE,
     }
     class << self
       def read?(_mode_type)
@@ -170,8 +170,8 @@ class EventLog < ActiveRecord::Base
     end
     handle_asynchronously :logEvent
 
-    def clear3DaysData
-      EventLog.logEvent(User.find_by_email('admin@playcelet.com'), EventTypes::CLEAR_3_DAYS_DATA, Time.now, {})
+    def clear1DaysData
+      EventLog.logEvent(User.find_by_email('admin@playcelet.com'), EventTypes::CLEAR_1_DAYS_DATA, Time.now, {})
     end
 
     def signOutAlreadySignedInUser(_user, _details, options={})

@@ -19,7 +19,7 @@ class PlayceletDataCleaner
 			PLAYCELET_DATA_CLASSES.each do |playcelet_data_class|
 				playcelet_data_class.destroy_all(records_age_options)
 			end
-			EventLog.clear3DaysData
+			EventLog.clear1DaysData
 		end
 	end
 end

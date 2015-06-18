@@ -167,6 +167,8 @@ class Api::V1::ChildrenController<Api::BaseController
 	          data:
 	          {
 	            msg: "#{child_name} is with #{supervisor_name}",
+	            child_name: child_name,
+	            parent_name: supervisor_name,
 	            condition: 3,
 	          }
 	        }
