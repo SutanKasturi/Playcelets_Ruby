@@ -54,6 +54,7 @@ Rails.application.routes.draw do
       match '/come_home_notification' => 'children#come_home_notification', :via => :post
       match '/overdue_home_notification' => 'children#overdue_home_notification', :via => :post
       match '/child_arrival_notification' => 'children#child_arrival_notification', :via => :post
+      match 'invited_child_arrival_notification' => 'children#invited_child_arrival_notification', :via => :post
 
       resources :messages do
         match '/message/:id' => 'messages#confirm', :via => :post

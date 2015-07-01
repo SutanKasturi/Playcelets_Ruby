@@ -208,6 +208,36 @@ class Api::V1::ChildrenController<Api::BaseController
 			# render json: @children, status: 200	  	
 		end		
 	end
+	def invited_child_arrival_notification
+		if @user_parent
+			p 'This is parent'
+			user = current_user
+			
+			child_name = params[:child_name]			
+			supervisor_name = params[:supervisor_name]
+
+			parent = User.find_by_id(Parent.find_by_last_name(Child.find_by_first_name(child_name).last_name).user_id)
+			parent_token = parent.device_token				
+
+			gcm = GCM.new("AIzaSyCkvQ6Ea4z_66VbDFTHVEA3OGn_Z82wtlE")
+	        @notify_token = parent_token
+	        registration_ids = [@notify_token];
+	        options =
+	        {
+	          data:
+	          {
+	            msg: "#{child_name} arrived to home",
+	            child_name: child_name,
+	            parent_name: supervisor_name,
+	            condition: 7,
+	          }
+	        }
+
+	        response = gcm.send_notification(registration_ids,options)
+	        # puts response
+			# render json: @children, status: 200	  	
+		end		
+	end
 	def come_home_notification
 		if @user_parent
 			p 'This is parent'
