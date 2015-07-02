@@ -185,8 +185,8 @@ class Api::V1::ChildrenController<Api::BaseController
 			
 			child_name = params[:child_name]
 			supervisor_name = params[:supervisor_name]
-
-			parent = User.find_by_id(Parent.find_by_first_name(supervisor_name).user_id)
+			first_name = supervisor_name.split' '
+			parent = User.find_by_id(Parent.find_by_first_name(first_name[0]).user_id)
 			parent_token = parent.device_token				
 
 			gcm = GCM.new("AIzaSyCkvQ6Ea4z_66VbDFTHVEA3OGn_Z82wtlE")
