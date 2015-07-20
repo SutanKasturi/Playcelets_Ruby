@@ -185,7 +185,7 @@ class Api::V1::ChildrenController<Api::BaseController
 			
 			child_name = params[:child_name]
 			inviter_child_name = params[:inviter_child_name]
-			parent = User.find_by_id(Parent.find_by_last_name(Child.find_by_first_name(inviter_child_name).last_name).user_id)
+			parent = User.find_by_id(Parent.find_by_last_name(invited_child_name).user_id)
 			parent_token = parent.device_token				
 
 			gcm = GCM.new("AIzaSyCkvQ6Ea4z_66VbDFTHVEA3OGn_Z82wtlE")
