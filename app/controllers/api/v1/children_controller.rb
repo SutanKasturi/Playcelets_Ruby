@@ -197,7 +197,6 @@ class Api::V1::ChildrenController<Api::BaseController
 	          {
 	            msg: "#{child_name} arrived to home",
 	            child_name: child_name,
-	            parent_name: supervisor_name,
 	            condition: 6,
 	          }
 	        }
